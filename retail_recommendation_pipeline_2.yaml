@@ -7,7 +7,7 @@ components:
     inputDefinitions:
       parameters:
         base_image:
-          defaultValue: retail-recommendation-pipeline:latest
+          defaultValue: python:3.10.0
           isOptional: true
           parameterType: STRING
   comp-evaluate-model:
@@ -15,7 +15,7 @@ components:
     inputDefinitions:
       parameters:
         base_image:
-          defaultValue: retail-recommendation-pipeline:latest
+          defaultValue: python:3.10.0
           isOptional: true
           parameterType: STRING
   comp-hyperparameter-tuning:
@@ -23,7 +23,7 @@ components:
     inputDefinitions:
       parameters:
         base_image:
-          defaultValue: retail-recommendation-pipeline:latest
+          defaultValue: python:3.10.0
           isOptional: true
           parameterType: STRING
   comp-model-training:
@@ -31,7 +31,7 @@ components:
     inputDefinitions:
       parameters:
         base_image:
-          defaultValue: retail-recommendation-pipeline:latest
+          defaultValue: python:3.10.0
           isOptional: true
           parameterType: STRING
   comp-save-model:
@@ -39,7 +39,7 @@ components:
     inputDefinitions:
       parameters:
         base_image:
-          defaultValue: retail-recommendation-pipeline:latest
+          defaultValue: python:3.10.0
           isOptional: true
           parameterType: STRING
 deploymentSpec:
@@ -70,9 +70,15 @@ deploymentSpec:
 
           '
         - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
-          \ *\n\ndef data_preprocessing(base_image: str = \"retail-recommendation-pipeline:latest\"\
-          ):\n    import sys\n    sys.path.append('/app')\n    import pipeline.data_preprocessing\n\
-          \    pipeline.data_preprocessing.preprocess_data()\n\n"
+          \ *\n\ndef data_preprocessing(base_image: str = \"python:3.10.0\"):\n  \
+          \  df = pd.read_excel(\"/data/online_retail_II.xlsx\")\n    df['Total Price']\
+          \ = df['Quantity'] * df['Price']\n    preprocessed_dataset = df[df['Total\
+          \ Price'] > 0].copy()\n    preprocessed_dataset = preprocessed_dataset.dropna(subset=['Customer\
+          \ ID', 'StockCode', 'Total Price'])\n    preprocessed_dataset['Normalized\
+          \ Price'] = (\n        5 * (preprocessed_dataset['Total Price'] - preprocessed_dataset['Total\
+          \ Price'].min()) /\n        (preprocessed_dataset['Total Price'].max() -\
+          \ preprocessed_dataset['Total Price'].min())\n    )\n    preprocessed_dataset.to_csv(\"\
+          /data/preprocessed_data.csv\", index=False)\n\n"
         image: python:3.9
     exec-evaluate-model:
       container:
@@ -100,9 +106,16 @@ deploymentSpec:
 
           '
         - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
-          \ *\n\ndef evaluate_model(base_image: str = \"retail-recommendation-pipeline:latest\"\
-          ):\n    import sys\n    sys.path.append('/app')\n    import pipeline.evaluate_model\n\
-          \    pipeline.evaluate_model.evaluate_model()\n\n"
+          \ *\n\ndef evaluate_model(base_image: str = \"python:3.10.0\"):\n    preprocessed_dataset\
+          \ = pd.read_csv(\"/data/preprocessed_data.csv\")\n    model = joblib.load(\"\
+          /models/SVD_model.pkl\")\n\n    reader = Reader(rating_scale=(0, 5))\n \
+          \   data = Dataset.load_from_df(preprocessed_dataset[['Customer ID', 'StockCode',\
+          \ 'Normalized Price']], reader)\n    trainset = data.build_full_trainset()\n\
+          \    testset = trainset.build_testset()\n    predictions = model.test(testset)\n\
+          \n    rmse = accuracy.rmse(predictions)\n    mae = accuracy.mae(predictions)\n\
+          \n    with open(\"/data/metrics.txt\", \"w\") as f:\n        f.write(f\"\
+          RMSE: {rmse}\\n\")\n        f.write(f\"MAE: {mae}\\n\")\n\n    print(f\"\
+          RMSE: {rmse}\")\n    print(f\"MAE: {mae}\")\n\n"
         image: python:3.9
     exec-hyperparameter-tuning:
       container:
@@ -130,9 +143,22 @@ deploymentSpec:
 
           '
         - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
-          \ *\n\ndef hyperparameter_tuning(base_image: str = \"retail-recommendation-pipeline:latest\"\
-          ):\n    import sys\n    sys.path.append('/app')\n    import pipeline.hyperparameter_tuning\n\
-          \    pipeline.hyperparameter_tuning.tune_hyperparameters()    \n\n"
+          \ *\n\ndef hyperparameter_tuning(base_image: str = \"python:3.10.0\"):\n\
+          \    preprocessed_dataset = pd.read_csv(\"data/preprocessed_data.csv\")\n\
+          \n\n    reader = Reader(rating_scale=(0, 5))\n    data = Dataset.load_from_df(preprocessed_dataset[['Customer\
+          \ ID', 'StockCode', 'Normalized Price']], reader)\n\n\n    param_grid =\
+          \ {\n        'n_factors': [50, 100, 150],\n        'n_epochs': [20, 30],\n\
+          \        'lr_all': [0.002, 0.005],\n        'reg_all': [0.02, 0.1]\n   \
+          \ }\n\n\n    grid_search = GridSearchCV(SVD, param_grid, measures=['rmse'],\
+          \ cv=3)\n    grid_search.fit(data)\n\n\n    best_params = grid_search.best_params['rmse']\n\
+          \n\n    with open(\"data/best_params.txt\", \"w\") as f:\n        f.write(str(best_params))\n\
+          \n    print(f\"\u2705 Best hyperparameters saved: {best_params}\")\n\n\n\
+          \    best_model = SVD(\n        n_factors=best_params['n_factors'],\n  \
+          \      n_epochs=best_params['n_epochs'],\n        lr_all=best_params['lr_all'],\n\
+          \        reg_all=best_params['reg_all']\n    )\n\n\n    trainset = data.build_full_trainset()\n\
+          \    best_model.fit(trainset)\n\n\n    joblib.dump(best_model, \"models/SVD_model.pkl\"\
+          )\n    print(\"\u2705 Model retrained and saved as 'SVD_model.pkl'\")  \
+          \  \n\n"
         image: python:3.9
     exec-model-training:
       container:
@@ -160,9 +186,13 @@ deploymentSpec:
 
           '
         - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
-          \ *\n\ndef model_training(base_image: str = \"retail-recommendation-pipeline:latest\"\
-          ):\n    import sys\n    sys.path.append('/app')\n    import pipeline.model_training\n\
-          \    pipeline.model_training.train_model()\n\n"
+          \ *\n\ndef model_training(base_image: str = \"python:3.10.0\"):\n    preprocessed_dataset\
+          \ = pd.read_csv(\"/Data/preprocessed_data.csv\")\n    reader = Reader(rating_scale=(0,\
+          \ 5))\n    data = Dataset.load_from_df(preprocessed_dataset[['Customer ID',\
+          \ 'StockCode', 'Normalized Price']], reader)\n    trainset, testset = train_test_split(data,\
+          \ test_size=0.2, random_state=42)\n    model = SVD(n_factors=100, n_epochs=20,\
+          \ lr_all=0.005, reg_all=0.02)\n    model.fit(trainset)\n    joblib.dump(model,\
+          \ \"/models/SVD_model.pkl\")\n\n"
         image: python:3.9
     exec-save-model:
       container:
@@ -190,9 +220,10 @@ deploymentSpec:
 
           '
         - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
-          \ *\n\ndef save_model(base_image: str = \"retail-recommendation-pipeline:latest\"\
-          ):\n    import sys\n    sys.path.append('/app')\n    import pipeline.save_model\n\
-          \    pipeline.save_model.save_model()\n\n"
+          \ *\n\ndef save_model(base_image: str = \"python:3.10.0\"):\n    model =\
+          \ joblib.load(\"models/SVD_model.pkl\")\n    joblib.dump(model, \"models/final_recommendation_model.pkl\"\
+          )\n    print(\"Model saved successfully as final_recommendation_model.pkl!\"\
+          )\n\n"
         image: python:3.9
 pipelineInfo:
   description: Pipeline to build and deploy a recommendation model

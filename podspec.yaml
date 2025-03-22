@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: retail-recommendation-pipeline-pod
+spec:
+  containers:
+    - name: retail-recommendation-pipeline
+      image: retail-recommendation-pipeline:latest
+      ports:
+        - containerPort: 8080
+      imagePullPolicy: Never 

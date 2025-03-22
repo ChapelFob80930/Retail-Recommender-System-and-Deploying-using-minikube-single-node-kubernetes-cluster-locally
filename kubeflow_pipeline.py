@@ -1,29 +1,41 @@
 import kfp
 from kfp.dsl import component, pipeline
+import pandas as pd
+
 
 
 @component
-def data_preprocessing(base_image: str ="python:3.9"):
+def data_preprocessing(base_image: str = "retail-recommendation-pipeline:latest"):
+    import sys
+    sys.path.append('/app')
     import pipeline.data_preprocessing
     pipeline.data_preprocessing.preprocess_data()
 
 @component
-def model_training(base_image: str ="python:3.9"):
+def model_training(base_image: str = "retail-recommendation-pipeline:latest"):
+    import sys
+    sys.path.append('/app')
     import pipeline.model_training
     pipeline.model_training.train_model()
 
 @component
-def hyperparameter_tuning(base_image: str ="python:3.9"):
+def hyperparameter_tuning(base_image: str = "retail-recommendation-pipeline:latest"):
+    import sys
+    sys.path.append('/app')
     import pipeline.hyperparameter_tuning
-    pipeline.hyperparameter_tuning.tune_hyperparameters()
+    pipeline.hyperparameter_tuning.tune_hyperparameters()    
 
 @component
-def evaluate_model(base_image: str ="python:3.9"):
+def evaluate_model(base_image: str = "retail-recommendation-pipeline:latest"):
+    import sys
+    sys.path.append('/app')
     import pipeline.evaluate_model
     pipeline.evaluate_model.evaluate_model()
 
 @component
-def save_model(base_image: str ="python:3.9"):
+def save_model(base_image: str = "retail-recommendation-pipeline:latest"):
+    import sys
+    sys.path.append('/app')
     import pipeline.save_model
     pipeline.save_model.save_model()
 

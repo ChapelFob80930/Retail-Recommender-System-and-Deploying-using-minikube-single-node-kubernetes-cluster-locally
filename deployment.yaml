@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: retail-recommendation-pipeline
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: retail-recommendation-pipeline
+  template:
+    metadata:
+      labels:
+        app: retail-recommendation-pipeline
+    spec:
+      containers:
+        - name: retail-recommendation-pipeline
+          image: retail-recommendation-pipeline:latest
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Never  # Correct location for imagePullPolicy

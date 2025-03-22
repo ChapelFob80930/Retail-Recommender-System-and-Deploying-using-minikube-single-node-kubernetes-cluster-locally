@@ -1,0 +1,24 @@
+# Python virtual environment
+.venv/
+venv/
+ENV/
+
+# Development and IDE files
+.vscode/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+
+# Git files
+.git/
+.gitignore
+.gitattributes
+
+# Other files that typically don't need to be in Docker images
+*.log
+.DS_Store
