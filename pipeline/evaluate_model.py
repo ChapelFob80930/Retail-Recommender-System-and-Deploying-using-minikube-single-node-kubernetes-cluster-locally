@@ -3,8 +3,8 @@ import joblib
 from surprise import Reader, Dataset, accuracy
 
 def evaluate_model():
-    preprocessed_dataset = pd.read_csv("/data/preprocessed_data.csv")
-    model = joblib.load("/models/SVD_model.pkl")
+    preprocessed_dataset = pd.read_csv("/app/data/processed_data.csv")
+    model = joblib.load("/app/models/SVD.pkl")
 
     reader = Reader(rating_scale=(0, 5))
     data = Dataset.load_from_df(preprocessed_dataset[['Customer ID', 'StockCode', 'Normalized Price']], reader)
@@ -15,7 +15,7 @@ def evaluate_model():
     rmse = accuracy.rmse(predictions)
     mae = accuracy.mae(predictions)
     
-    with open("/data/metrics.txt", "w") as f:
+    with open("/app/data/metrics.txt", "w") as f:
         f.write(f"RMSE: {rmse}\n")
         f.write(f"MAE: {mae}\n")
         

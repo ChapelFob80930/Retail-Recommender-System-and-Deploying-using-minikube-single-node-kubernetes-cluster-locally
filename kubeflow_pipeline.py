@@ -1,39 +1,40 @@
+import time
 import kfp
 from kfp.dsl import component, pipeline
 import pandas as pd
 
 
 
-@component
-def data_preprocessing(base_image: str = "retail-recommendation-pipeline:latest"):
+@component(base_image="chapelfob80930/retail-recommendation-pipeline:latest")
+def data_preprocessing():
     import sys
     sys.path.append('/app')
     import pipeline.data_preprocessing
     pipeline.data_preprocessing.preprocess_data()
 
-@component
-def model_training(base_image: str = "retail-recommendation-pipeline:latest"):
+@component(base_image="chapelfob80930/retail-recommendation-pipeline:latest")
+def model_training():
     import sys
     sys.path.append('/app')
     import pipeline.model_training
     pipeline.model_training.train_model()
 
-@component
-def hyperparameter_tuning(base_image: str = "retail-recommendation-pipeline:latest"):
+@component(base_image="chapelfob80930/retail-recommendation-pipeline:latest")
+def hyperparameter_tuning():
     import sys
     sys.path.append('/app')
     import pipeline.hyperparameter_tuning
     pipeline.hyperparameter_tuning.tune_hyperparameters()    
 
-@component
-def evaluate_model(base_image: str = "retail-recommendation-pipeline:latest"):
+@component(base_image="chapelfob80930/retail-recommendation-pipeline:latest")
+def evaluate_model():
     import sys
     sys.path.append('/app')
     import pipeline.evaluate_model
     pipeline.evaluate_model.evaluate_model()
 
-@component
-def save_model(base_image: str = "retail-recommendation-pipeline:latest"):
+@component(base_image="chapelfob80930/retail-recommendation-pipeline:latest")
+def save_model():
     import sys
     sys.path.append('/app')
     import pipeline.save_model
@@ -50,3 +51,8 @@ def recommendation_pipeline():
 if __name__ == "__main__":
     from kfp import compiler
     compiler.Compiler().compile(recommendation_pipeline, "retail_recommendation_pipeline.yaml")
+    
+    print("Pipeline executed successfully!")
+    # while True:
+    #     time.sleep(60)
+    

@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: retail-recommendation-pipeline
+  labels:
+    app: retail-recommendation-pipeline
 spec:
   replicas: 1
   selector:
@@ -14,7 +16,35 @@ spec:
     spec:
       containers:
         - name: retail-recommendation-pipeline
-          image: retail-recommendation-pipeline:latest
+          image: chapelfob80930/retail-recommendation-pipeline:latest
           ports:
             - containerPort: 8080
-          imagePullPolicy: Never  # Correct location for imagePullPolicy
+          imagePullPolicy: Always  # Correct location for imagePullPolicy
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: retail-recommendation-pipeline
+spec:
+  selector:
+    app: retail-recommendation-pipeline
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP

@@ -4,44 +4,14 @@
 components:
   comp-data-preprocessing:
     executorLabel: exec-data-preprocessing
-    inputDefinitions:
-      parameters:
-        base_image:
-          defaultValue: retail-recommendation-pipeline:latest
-          isOptional: true
-          parameterType: STRING
   comp-evaluate-model:
     executorLabel: exec-evaluate-model
-    inputDefinitions:
-      parameters:
-        base_image:
-          defaultValue: retail-recommendation-pipeline:latest
-          isOptional: true
-          parameterType: STRING
   comp-hyperparameter-tuning:
     executorLabel: exec-hyperparameter-tuning
-    inputDefinitions:
-      parameters:
-        base_image:
-          defaultValue: retail-recommendation-pipeline:latest
-          isOptional: true
-          parameterType: STRING
   comp-model-training:
     executorLabel: exec-model-training
-    inputDefinitions:
-      parameters:
-        base_image:
-          defaultValue: retail-recommendation-pipeline:latest
-          isOptional: true
-          parameterType: STRING
   comp-save-model:
     executorLabel: exec-save-model
-    inputDefinitions:
-      parameters:
-        base_image:
-          defaultValue: retail-recommendation-pipeline:latest
-          isOptional: true
-          parameterType: STRING
 deploymentSpec:
   executors:
     exec-data-preprocessing:
@@ -70,10 +40,10 @@ deploymentSpec:
 
           '
         - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
-          \ *\n\ndef data_preprocessing(base_image: str = \"retail-recommendation-pipeline:latest\"\
-          ):\n    import sys\n    sys.path.append('/app')\n    import pipeline.data_preprocessing\n\
-          \    pipeline.data_preprocessing.preprocess_data()\n\n"
-        image: python:3.9
+          \ *\n\ndef data_preprocessing():\n    import sys\n    sys.path.append('/app')\n\
+          \    import pipeline.data_preprocessing\n    pipeline.data_preprocessing.preprocess_data()\n\
+          \n"
+        image: chapelfob80930/retail-recommendation-pipeline:latest
     exec-evaluate-model:
       container:
         args:
@@ -100,10 +70,10 @@ deploymentSpec:
 
           '
         - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
-          \ *\n\ndef evaluate_model(base_image: str = \"retail-recommendation-pipeline:latest\"\
-          ):\n    import sys\n    sys.path.append('/app')\n    import pipeline.evaluate_model\n\
-          \    pipeline.evaluate_model.evaluate_model()\n\n"
-        image: python:3.9
+          \ *\n\ndef evaluate_model():\n    import sys\n    sys.path.append('/app')\n\
+          \    import pipeline.evaluate_model\n    pipeline.evaluate_model.evaluate_model()\n\
+          \n"
+        image: chapelfob80930/retail-recommendation-pipeline:latest
     exec-hyperparameter-tuning:
       container:
         args:
@@ -130,10 +100,10 @@ deploymentSpec:
 
           '
         - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
-          \ *\n\ndef hyperparameter_tuning(base_image: str = \"retail-recommendation-pipeline:latest\"\
-          ):\n    import sys\n    sys.path.append('/app')\n    import pipeline.hyperparameter_tuning\n\
-          \    pipeline.hyperparameter_tuning.tune_hyperparameters()    \n\n"
-        image: python:3.9
+          \ *\n\ndef hyperparameter_tuning():\n    import sys\n    sys.path.append('/app')\n\
+          \    import pipeline.hyperparameter_tuning\n    pipeline.hyperparameter_tuning.tune_hyperparameters()\
+          \    \n\n"
+        image: chapelfob80930/retail-recommendation-pipeline:latest
     exec-model-training:
       container:
         args:
@@ -160,10 +130,10 @@ deploymentSpec:
 
           '
         - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
-          \ *\n\ndef model_training(base_image: str = \"retail-recommendation-pipeline:latest\"\
-          ):\n    import sys\n    sys.path.append('/app')\n    import pipeline.model_training\n\
-          \    pipeline.model_training.train_model()\n\n"
-        image: python:3.9
+          \ *\n\ndef model_training():\n    import sys\n    sys.path.append('/app')\n\
+          \    import pipeline.model_training\n    pipeline.model_training.train_model()\n\
+          \n"
+        image: chapelfob80930/retail-recommendation-pipeline:latest
     exec-save-model:
       container:
         args:
@@ -190,10 +160,9 @@ deploymentSpec:
 
           '
         - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
-          \ *\n\ndef save_model(base_image: str = \"retail-recommendation-pipeline:latest\"\
-          ):\n    import sys\n    sys.path.append('/app')\n    import pipeline.save_model\n\
-          \    pipeline.save_model.save_model()\n\n"
-        image: python:3.9
+          \ *\n\ndef save_model():\n    import sys\n    sys.path.append('/app')\n\
+          \    import pipeline.save_model\n    pipeline.save_model.save_model()\n\n"
+        image: chapelfob80930/retail-recommendation-pipeline:latest
 pipelineInfo:
   description: Pipeline to build and deploy a recommendation model
   name: retail-recommendation-pipeline

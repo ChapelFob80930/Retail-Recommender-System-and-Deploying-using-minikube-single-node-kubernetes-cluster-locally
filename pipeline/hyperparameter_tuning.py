@@ -5,7 +5,7 @@ import joblib
 
 def tune_hyperparameters():
 
-    preprocessed_dataset = pd.read_csv("data/preprocessed_data.csv")
+    preprocessed_dataset = pd.read_csv("/app/data/processed_data.csv")
     
 
     reader = Reader(rating_scale=(0, 5))
@@ -27,7 +27,7 @@ def tune_hyperparameters():
     best_params = grid_search.best_params['rmse']
     
 
-    with open("data/best_params.txt", "w") as f:
+    with open("/app/data/best_params.txt", "w") as f:
         f.write(str(best_params))
     
     print(f"✅ Best hyperparameters saved: {best_params}")
@@ -45,5 +45,5 @@ def tune_hyperparameters():
     best_model.fit(trainset)
 
 
-    joblib.dump(best_model, "models/SVD_model.pkl")
+    joblib.dump(best_model, "/app/models/SVD_model.pkl")
     print("✅ Model retrained and saved as 'SVD_model.pkl'")
